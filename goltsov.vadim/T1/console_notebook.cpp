@@ -58,6 +58,7 @@ namespace goltsov
     new_note->text = "";
     all_notes.push_back(new_note);
   }
+
   void Book::show (std::string& note_name)
   {
     for (size_t i = 0; i < all_notes.size(); ++i)
@@ -70,6 +71,7 @@ namespace goltsov
     }
     throw std::logic_error("<INVALID COMMAND>\n");
   }
+
   void Book::drop (std::string& note_name)
   {
     for (size_t i = 0; i < all_notes.size(); ++i)
@@ -82,6 +84,7 @@ namespace goltsov
     }
     throw std::logic_error("<INVALID COMMAND>\n");
   }
+
   void Book::mind (std::string& note_name)
   {
     std::shared_ptr< Note > temp = nullptr;
@@ -105,6 +108,7 @@ namespace goltsov
       }
     }
   }
+
   void Book::expired (std::string& note_name)
   {
     std::shared_ptr< Note > temp = nullptr;
@@ -130,6 +134,7 @@ namespace goltsov
     }
     std::cout << ans << '\n';
   }
+
   void Book::refresh (std::string& note_name)
   {
     std::shared_ptr< Note > temp = nullptr;
@@ -154,6 +159,7 @@ namespace goltsov
       }
     }
   }
+
   void Book::link (std::string& note_from, std::string& note_to)
   {
     std::shared_ptr< Note > from = nullptr;
@@ -182,6 +188,7 @@ namespace goltsov
     }
     from->links.push_back(to);
   }
+
   void Book::halt (std::string& note_from, std::string& note_to)
   {
     std::shared_ptr< Note > from = nullptr;
@@ -210,6 +217,7 @@ namespace goltsov
       }
     }
   }
+
   void Book::line (std::string& note_name, std::string& quoted_text)
   {
     for (size_t i = 0; i < all_notes.size(); ++i)
