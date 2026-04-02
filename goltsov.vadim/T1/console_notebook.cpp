@@ -19,6 +19,12 @@ namespace goltsov
 
   void Book::doAction(std::string& name_func, std::string& note_name)
   {
+    if (((funcs_two_words.find(name_func)) == (funcs_two_words.end()))
+        && ((funcs_two_link.find(name_func)) == (funcs_two_link.end()))
+        && ((funcs_only_word.find(name_func)) == (funcs_only_word.end())))
+    {
+      throw std::logic_error("");
+    }
     if (name_func == "line")
     {
       std::string quoted_text;
@@ -37,9 +43,9 @@ namespace goltsov
       {
         (this->*funcs_only_word.at(name_func))(note_name);
       }
-      catch(const std::exception& e)
+      catch (const std::exception& e)
       {
-        std::cerr << "<INVALID COMMAND>\n";
+        throw std::logic_error("<INVALID COMMAND>\n");
       }
     }
   }
@@ -50,7 +56,7 @@ namespace goltsov
     {
       if (all_notes[i]->name == note_name)
       {
-        return;
+        throw std::logic_error("<INVALID COMMAND>\n");
       }
     }
     std::shared_ptr< Note > new_note = std::shared_ptr< Note >(new Note);
