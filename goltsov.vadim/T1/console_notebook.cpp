@@ -228,7 +228,6 @@ namespace goltsov
         return;
       }
     }
-    note(note_name);
-    all_notes.back()->text.append(quoted_text + '\n');
+    throw std::logic_error("<INVALID COMMAND>\n");
   }
 }
