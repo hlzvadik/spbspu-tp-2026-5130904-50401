@@ -17,10 +17,9 @@ int main()
     {
       all_notes.doAction(cmd, note_name);
     }
-    catch(const std::exception& e)
+    catch (const std::exception& e)
     {
       std::cout << e.what();
     }
   }
-  std::cout << '\n';
 }

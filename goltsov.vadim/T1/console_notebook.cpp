@@ -19,12 +19,6 @@ namespace goltsov
 
   void Book::doAction(std::string& name_func, std::string& note_name)
   {
-    if (((funcs_two_words.find(name_func)) == (funcs_two_words.end()))
-        && ((funcs_two_link.find(name_func)) == (funcs_two_link.end()))
-        && ((funcs_only_word.find(name_func)) == (funcs_only_word.end())))
-    {
-      throw std::logic_error("");
-    }
     if (name_func == "line")
     {
       std::string quoted_text;
@@ -35,7 +29,14 @@ namespace goltsov
     {
       std::string note_to;
       std::cin >> note_to;
-      (this->*funcs_two_link.at(name_func))(note_name, note_to);
+      try
+      {
+        (this->*funcs_two_link.at(name_func))(note_name, note_to);
+      }
+      catch (const std::exception& e)
+      {
+        throw std::logic_error("<INVALID COMMAND>\n");
+      }
     }
     else
     {
@@ -67,6 +68,10 @@ namespace goltsov
 
   void Book::show (std::string& note_name)
   {
+    if (all_notes.size() == 0)
+    {
+      std::cout << '\n';
+    }
     for (size_t i = 0; i < all_notes.size(); ++i)
     {
       if (all_notes[i]->name == note_name)
@@ -105,6 +110,11 @@ namespace goltsov
     if (temp == nullptr)
     {
       throw std::logic_error("<INVALID COMMAND>\n");
+    }
+    if (temp->links.size() == 0)
+    {
+      std::cout << '\n';
+      return;
     }
     for (size_t i = 0; i < temp->links.size(); ++i)
     {
