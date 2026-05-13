@@ -14,7 +14,7 @@ namespace goltsov
       return is;
     }
     IOGuard guard (is);
-    char last;
+    char last = 0;
     using d_t = goltsov::delimeter_t;
     unsigned long long numb = 0;
     is >> numb >> d_t{{'u', 'U'}, last} >> d_t{{'l', 'L'}, last} >> d_t{{'l', 'L'}, last};
@@ -44,7 +44,7 @@ namespace goltsov
       return is;
     }
     IOGuard guard (is);
-    char pre;
+    char pre = 0;
     is >> pre;
     if (pre != '0')
     {
@@ -94,7 +94,7 @@ namespace goltsov
     }
     IOGuard guard (is);
     DataStruct inp;
-    char last;
+    char last = 0;
     using d_t = delimeter_t;
     std::vector< bool > is_been (3, false);
     std::string k1, k2, k3;
@@ -134,7 +134,7 @@ namespace goltsov
 
   char check(std::istream& is, const std::vector< char >& expected)
   {
-    char c;
+    char c = 0;
     is >> c;
     if (std::find(expected.begin(), expected.end(), c) == expected.end())
     {
@@ -173,7 +173,7 @@ namespace goltsov
         is.setstate(std::ios_base::failbit);
         return is;
       }
-      char q;
+      char q = 0;
       std::getline(is >> d_t {{'"'}, q}, ds.key3, '"');
       is_been[2] = true;
     }
