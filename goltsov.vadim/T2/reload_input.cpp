@@ -71,7 +71,7 @@ namespace goltsov
   }
   std::ostream& operator<<(std::ostream& os, const UllOct& uo)
   {
-    IOGuard guard (os); 
+    IOGuard guard (os);
     os << '0';
     os << std::oct << uo.a;
     return os;
@@ -184,4 +184,3 @@ namespace goltsov
     return is;
   }
 }
-
