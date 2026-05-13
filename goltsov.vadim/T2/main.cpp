@@ -1,13 +1,15 @@
 #include <iostream>
+#include <vector>
 #include <string>
+#include <algorithm>
 #include <cctype>
 
 namespace goltsov
 {
   struct DataStruct
   {
-    unsigned long long key1;
-    unsigned long long key2;
+    UllLit key1;
+    UllOct key2;
     std::string key3;
   };
   std::istream& operator>>(std::istream& is, DataStruct& ds);
@@ -16,7 +18,7 @@ namespace goltsov
 
   struct UllLit
   {
-    unsigned long long& a;
+    unsigned long long a;
   };
   std::istream& operator>>(std::istream& is, UllLit& ul);
   std::ostream& operator<<(std::ostream& os, UllLit& ul);
@@ -28,10 +30,12 @@ namespace goltsov
   std::istream& operator>>(std::istream& is, UllOct& uo);
   std::ostream& operator<<(std::ostream& os, UllOct& uo);
 
+  
+
   struct delimeter_t
   {
-    char expected;
-    char& last;
+    std::vector< char > expected;
+    char last;
   };
   std::istream& operator>>(std::istream& is, delimeter_t& del);
 
@@ -59,7 +63,14 @@ namespace goltsov
     char fill_;
   };
 
-  char check(std::istream& is, char expected);
+  char check(std::istream& is, std::vector< char > expected);
+
+  enum Key
+  {
+    KEY1, KEY2, KEY3, UNKNOW
+  };
+
+  Key getKeyType(std::string s_key);
 }
 
 
@@ -68,11 +79,31 @@ int main()
 
 namespace goltsov
 {
-  char check(std::istream& is, char expected)
+  Key getKeyType(std::string s_key)
+  {
+    if (s_key == "key1")
+    {
+      return KEY1;
+    }
+    else if (s_key == "key2")
+    {
+      return KEY2;
+    }
+    else if (s_key == "key3")
+    {
+      return KEY3;
+    }
+    else
+    {
+      return UNKNOW;
+    }
+  }
+
+  char check(std::istream& is, std::vector< char > expected)
   {
     char c;
     is >> c;
-    if (c != expected)
+    if (std::find(expected.begin(), expected.end(), c) == expected.end())
     {
       is.setstate(std::ios_base::failbit);
     }
@@ -88,12 +119,12 @@ namespace goltsov
   std::istream& operator>>(std::istream& is, UllOct& uo)
   {
     std::string oct_str;
-    std::istream::sentry s(is);
+    std::istream::sentry s (is);
     if (!s)
     {
       return is;
     }
-    IOGuard g(is);
+    IOGuard g (is);
     is >> oct_str;
     if (oct_str.empty() || oct_str[0] != '0')
     {
@@ -104,7 +135,7 @@ namespace goltsov
     {
       uo.a = std::stoull(oct_str, nullptr, 8);
     }
-    catch (const std::exception&)
+    catch (...)
     {
       is.setstate(std::ios_base::failbit);
     }
@@ -112,7 +143,7 @@ namespace goltsov
   }
   std::ostream& operator<<(std::ostream& os, UllOct& uo)
   {
-    IOGuard guard(os); 
+    IOGuard guard (os); 
     os << '0';
     os << std::oct << uo.a;
     return os;
@@ -120,39 +151,71 @@ namespace goltsov
 
   std::istream& operator>>(std::istream& is, UllLit& ul)
   {
-    std::string lit_str;
-    std::istream::sentry s(is);
+    std::istream::sentry s (is);
     if (!s)
     {
       return is;
     }
-    IOGuard g(is);
-    is >> lit_str;
-    if (lit_str.size() < 4)
-    {
-      is.setstate(std::ios::failbit);
-      return is;
-    }
-    std::string lit = lit_str.substr(lit_str.size() - 4, 3);
-    if (std::tolower(lit[0]) != 'u' || std::tolower(lit[1]) != 'l' || std::tolower(lit[2]) != 'l')
-    {
-      is.setstate(std::ios::failbit);
-      return is;
-    }
-    try
-    {
-      ul.a = std::stoull(lit_str.substr(0, lit_str.size() - 3));
-    }
-    catch (...)
-    {
-      is.setstate(std::ios::failbit);
-    }
+    IOGuard g (is);
+    char last;
+    using d_t = delimeter_t;
+    unsigned long long numb = 0;
+    is >> numb >> d_t{{'u', 'U'}, last} >> d_t{{'l', 'L'}, last} >> d_t{{'l', 'L'}, last};
+    ul.a = numb;
     return is;
   }
   std::ostream& operator<<(std::ostream& os, UllLit& ul)
   {
-    IOGuard guard(os);
+    IOGuard guard (os);
     os << ul.a << "ull";
     return os;
   }
+
+  std::istream& operator>>(std::istream& is, DataStruct& ds)
+  {
+    std::istream::sentry s (is);
+    if (!s)
+    {
+      return is;
+    }
+    IOGuard g (is);
+    char last;
+    using d_t = delimeter_t;
+    UllLit k1;
+    UllOct k2;
+    std::string k3;
+    is >> d_t{{'('}, last} >> d_t{{':'}, last};
+    for (size_t i = 0; i < 3; ++i)
+    {
+      std::string key;
+      is >> key;
+      switch (getKeyType(key))
+      {
+      case KEY1:
+        UllLit value1;
+        is >> value1;
+        ds.key1 = value1;
+        break;
+      case KEY2:
+        UllOct value2;
+        is >> value2;
+        ds.key2 = value2;
+        break;
+      case KEY3:
+        std::string value3;
+        is >> value3;
+        ds.key3 = value3;
+        break;
+      default:
+        is.setstate(std::ios::failbit);
+        break;
+      }
+      is >> d_t{{':'}, last};
+    }
+    is >> d_t{{')'}, last};
+    return is;
+  }
+  std::ostream& operator<<(std::ostream& os, DataStruct& ds);
+  bool operator<(const DataStruct& lhs, const DataStruct& rhs);
 }
+
