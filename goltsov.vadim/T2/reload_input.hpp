@@ -39,10 +39,13 @@ namespace goltsov
   };
   std::istream& operator>>(std::istream& is, delimeter_t del);
 
-  enum Key
+  struct KeyValueInp
   {
-    KEY1, KEY2, KEY3, UNKNOWN
+    std::string key;
+    std::vector< bool >& is_been;
+    DataStruct& ds;
   };
+  std::istream& operator>>(std::istream& is, KeyValueInp inp);
 
   struct IOGuard
   {
@@ -68,6 +71,6 @@ namespace goltsov
     char fill_;
   };
 
-  char check(std::istream& is, std::vector< char > expected);
-  Key getKeyType(std::string s_key);
+  char check(std::istream& is, const std::vector< char >& expected);
+  std::istream& getValueByKey(std::istream& is, std::string key, std::vector< bool >& is_been, DataStruct& ds);
 }

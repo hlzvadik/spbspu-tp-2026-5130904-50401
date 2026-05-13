@@ -48,19 +48,24 @@ namespace goltsov
     is >> pre;
     if (pre != '0')
     {
-      is.setstate(std::ios::failbit);
+      is.setstate(std::ios_base::failbit);
       return is;
     }
     unsigned long long numb;
     is >> numb;
-    try
+    if (!is)
     {
-      std::string oct_str = std::string(1, '0') + std::to_string(numb);
-      uo.a = std::stoull(oct_str, nullptr, 8);
+      return is;
     }
-    catch (...)
+    std::string oct_str = std::string(1, '0') + std::to_string(numb);
+    if (std::find(oct_str.begin(), oct_str.end(), '8') != oct_str.end()
+        || std::find(oct_str.begin(), oct_str.end(), '9') != oct_str.end())
     {
       is.setstate(std::ios_base::failbit);
+    }
+    else
+    {
+      uo.a = std::stoull(oct_str, nullptr, 8);
     }
     return is;
   }
@@ -88,51 +93,20 @@ namespace goltsov
       return is;
     }
     IOGuard guard (is);
+    DataStruct inp;
     char last;
     using d_t = delimeter_t;
-    is >> d_t{{'('}, last} >> d_t{{':'}, last};
-    bool filled[3] = {false};
-    for (int i = 0; i < 3; ++i)
+    std::vector< bool > is_been (3, false);
+    std::string k1, k2, k3;
+    is >> d_t{{'('}, last} >> d_t{{':'}, last}
+      >> k1 >> KeyValueInp {k1, is_been, inp} >> d_t{{':'}, last}
+      >> k2 >> KeyValueInp {k2, is_been, inp} >> d_t{{':'}, last}
+      >> k3 >> KeyValueInp {k3, is_been, inp} >> d_t{{':'}, last}
+      >> d_t{{')'}, last};
+    if (is)
     {
-      std::string key;
-      is >> key;
-      Key k = getKeyType(key);
-      if (k == UNKNOWN || filled[k])
-      {
-        is.setstate(std::ios::failbit);
-        return is;
-      }
-      filled[k] = true;
-      switch (k)
-      {
-      case KEY1:
-      {
-        is >> ds.key1;
-        break;
-      }
-      case KEY2:
-      {
-        is >> ds.key2;
-        break;
-      }
-      case KEY3:
-      {
-        std::getline(is >> d_t{{'"'}, last}, ds.key3, '"');
-        break;
-      }
-      default:
-        is.setstate(std::ios::failbit);
-        return is;
-      }
-      char next;
-      is >> next;
-      if (next != ':')
-      {
-        is.setstate(std::ios::failbit);
-        return is;
-      }
+      ds = inp;
     }
-    is >> d_t{{')'}, last};
     return is;
   }
   std::ostream& operator<<(std::ostream& os, const DataStruct& ds)
@@ -153,7 +127,12 @@ namespace goltsov
     return is;
   }
 
-  char check(std::istream& is, std::vector< char > expected)
+  std::istream& operator>>(std::istream& is, KeyValueInp inp)
+  {
+    return getValueByKey(is, inp.key, inp.is_been, inp.ds);
+  }
+
+  char check(std::istream& is, const std::vector< char >& expected)
   {
     char c;
     is >> c;
@@ -164,24 +143,45 @@ namespace goltsov
     return c;
   }
 
-  Key getKeyType(std::string s_key)
+  std::istream& getValueByKey(std::istream& is, std::string key, std::vector< bool >& is_been, DataStruct& ds)
   {
-    if (s_key == "key1")
+    using d_t = delimeter_t;
+    if (key == "key1")
     {
-      return KEY1;
+      if (is_been[0])
+      {
+        is.setstate(std::ios_base::failbit);
+        return is;
+      }
+      is >> ds.key1;
+      is_been[0] = true;
     }
-    else if (s_key == "key2")
+    else if (key == "key2")
     {
-      return KEY2;
+      if (is_been[1])
+      {
+        is.setstate(std::ios_base::failbit);
+        return is;
+      }
+      is >> ds.key2;
+      is_been[1] = true;
     }
-    else if (s_key == "key3")
+    else if (key == "key3")
     {
-      return KEY3;
+      if (is_been[2])
+      {
+        is.setstate(std::ios_base::failbit);
+        return is;
+      }
+      char q;
+      std::getline(is >> d_t {{'"'}, q}, ds.key3, '"');
+      is_been[2] = true;
     }
     else
     {
-      return UNKNOWN;
+      is.setstate(std::ios_base::failbit);
     }
+    return is;
   }
 }
 
