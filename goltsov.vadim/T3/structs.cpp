@@ -1,6 +1,7 @@
 #include "structs.hpp"
 #include <iostream>
 #include <algorithm>
+#include <ios>
 
 namespace goltsov
 {
@@ -28,6 +29,11 @@ namespace goltsov
     return os;
   }
 
+  bool operator==(const Point& lhs, const Point& rhs)
+  {
+    return (lhs.x == rhs.x) && (lhs.y == rhs.y);
+  }
+
   std::istream& operator>>(std::istream& is, Polygon& p)
   {
     std::istream::sentry s (is);
@@ -45,7 +51,7 @@ namespace goltsov
       return is;
     }
     t.points.reserve(count_points);
-    std::copy_n(std::istream_iterator<Point>(is), count_points, std::back_inserter(t.points));
+    std::copy_n(std::istream_iterator< Point >(is), count_points, std::back_inserter(t.points));
     if (t.points.size() != count_points || !is)
     {
       is.setstate(std::ios_base::failbit);

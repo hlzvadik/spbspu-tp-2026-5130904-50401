@@ -3,46 +3,60 @@
 #include <string>
 #include <algorithm>
 #include <numeric>
-#include "poligon_functions.hpp"
+#include <ios>
+#include "polygon_functions.hpp"
 
 namespace goltsov
 {
   void area(std::istream& is, std::ostream& os, const std::vector< Polygon >& all_polygons)
   {
-    std::string parametr;
-    is >> parametr;
-    if (isdigit(parametr[0]))
+    std::string parameter;
+    is >> parameter;
+    if (!is)
     {
-      unsigned long long count_vertexes = std::stoull(parametr);
+      if (is.eof())
+      {
+        is.clear();
+        is.setstate(std::ios_base::eofbit);
+      }
+      else
+      {
+        is.clear();
+      }
+      throw std::runtime_error("<INVALID COMMAND>");
+    }
+    if (isdigit(parameter[0]))
+    {
+      unsigned long long count_vertexes = std::stoull(parameter);
       std::vector< Polygon > vert_p;
       std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (vert_p), CountVertexesPredicate {count_vertexes});
       std::vector< double > areas;
-      std::transform(vert_p.begin(), vert_p.end(), areas, AreaPolygon {});
+      std::transform(vert_p.begin(), vert_p.end(), std::back_inserter(areas), AreaPolygon {});
       os << std::accumulate(areas.begin(), areas.end(), 0) << '\n';
       return;
     }
-    else if (parametr == "EVEN")
+    else if (parameter == "EVEN")
     {
       std::vector< Polygon > even_v;
       std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (even_v), EvenPredicate {});
       std::vector< double > areas;
-      std::transform(even_v.begin(), even_v.end(), areas, AreaPolygon {});
+      std::transform(even_v.begin(), even_v.end(), std::back_inserter(areas), AreaPolygon {});
       os << std::accumulate(areas.begin(), areas.end(), 0) << '\n';
       return;
     }
-    else if (parametr == "ODD")
+    else if (parameter == "ODD")
     {
       std::vector< Polygon > odd_v;
       std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (odd_v), OddPredicate {});
       std::vector< double > areas;
-      std::transform(odd_v.begin(), odd_v.end(), areas, AreaPolygon {});
+      std::transform(odd_v.begin(), odd_v.end(), std::back_inserter(areas), AreaPolygon {});
       os << std::accumulate(areas.begin(), areas.end(), 0) << '\n';
       return;
     }
-    else if (parametr == "MEAN")
+    else if (parameter == "MEAN")
     {
       std::vector< double > areas;
-      std::transform(all_polygons.begin(), all_polygons.end(), areas, AreaPolygon {});
+      std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(areas), AreaPolygon {});
       os << std::accumulate(areas.begin(), areas.end(), 0) / (static_cast< double >(all_polygons.size())) << '\n';
       return;
     }
@@ -54,19 +68,32 @@ namespace goltsov
 
   void max(std::istream& is, std::ostream& os, const std::vector< Polygon >& all_polygons)
   {
-    std::string parametr;
-    is >> parametr;
-    if (parametr == "AREA")
+    std::string parameter;
+    is >> parameter;
+    if (!is)
+    {
+      if (is.eof())
+      {
+        is.clear();
+        is.setstate(std::ios_base::eofbit);
+      }
+      else
+      {
+        is.clear();
+      }
+      throw std::runtime_error("<INVALID COMMAND>");
+    }
+    if (parameter == "AREA")
     {
       std::vector< double > areas;
-      std::transform(all_polygons.begin(), all_polygons.end(), areas, AreaPolygon {});
+      std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(areas), AreaPolygon {});
       os << (* std::max_element(areas.begin(), areas.end())) << '\n';
       return;
     }
-    else if (parametr == "VERTEXES")
+    else if (parameter == "VERTEXES")
     {
       std::vector< size_t > counts_vertexes;
-      std::transform(all_polygons.begin(), all_polygons.end(), counts_vertexes, CountVertexes {});
+      std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(counts_vertexes), CountVertexes {});
       os << (* std::max_element(counts_vertexes.begin(), counts_vertexes.end())) << '\n';
       return;
     }
@@ -78,19 +105,32 @@ namespace goltsov
 
   void min(std::istream& is, std::ostream& os, const std::vector< Polygon >& all_polygons)
   {
-    std::string parametr;
-    is >> parametr;
-    if (parametr == "AREA")
+    std::string parameter;
+    is >> parameter;
+    if (!is)
+    {
+      if (is.eof())
+      {
+        is.clear();
+        is.setstate(std::ios_base::eofbit);
+      }
+      else
+      {
+        is.clear();
+      }
+      throw std::runtime_error("<INVALID COMMAND>");
+    }
+    if (parameter == "AREA")
     {
       std::vector< double > areas;
-      std::transform(all_polygons.begin(), all_polygons.end(), areas, AreaPolygon {});
+      std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(areas), AreaPolygon {});
       os << * std::min_element(areas.begin(), areas.end()) << '\n';
       return;
     }
-    else if (parametr == "VERTEXES")
+    else if (parameter == "VERTEXES")
     {
       std::vector< size_t > counts_vertexes;
-      std::transform(all_polygons.begin(), all_polygons.end(), counts_vertexes, CountVertexes {});
+      std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(counts_vertexes), CountVertexes {});
       os << * std::min_element(counts_vertexes.begin(), counts_vertexes.end()) << '\n';
       return;
     }
@@ -102,24 +142,37 @@ namespace goltsov
 
   void count(std::istream& is, std::ostream& os, const std::vector< Polygon >& all_polygons)
   {
-    std::string parametr;
-    is >> parametr;
-    if (isdigit(parametr[0]))
+    std::string parameter;
+    is >> parameter;
+    if (!is)
     {
-      unsigned long long count_vertexes = std::stoull(parametr);
+      if (is.eof())
+      {
+        is.clear();
+        is.setstate(std::ios_base::eofbit);
+      }
+      else
+      {
+        is.clear();
+      }
+      throw std::runtime_error("<INVALID COMMAND>");
+    }
+    if (isdigit(parameter[0]))
+    {
+      unsigned long long count_vertexes = std::stoull(parameter);
       std::vector< Polygon > vert_p;
       std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (vert_p), CountVertexesPredicate {count_vertexes});
       os << vert_p.size() << '\n';
       return;
     }
-    else if (parametr == "EVEN")
+    else if (parameter == "EVEN")
     {
       std::vector< Polygon > even_v;
       std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (even_v), EvenPredicate {});
       os << even_v.size() << '\n';
       return;
     }
-    else if (parametr == "ODD")
+    else if (parameter == "ODD")
     {
       std::vector< Polygon > odd_v;
       std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (odd_v), OddPredicate {});
@@ -134,26 +187,52 @@ namespace goltsov
 
   void maxseq(std::istream& is, std::ostream& os, const std::vector< Polygon >& all_polygons)
   {
-    std::vector< size_t > now_max (all_polygons.size());
+    std::vector< size_t > now_max;
     Polygon p;
     is >> p;
-    std::transform(all_polygons.begin(), all_polygons.end(), now_max.begin(), NowMax {0, p});
+    if (!is)
+    {
+      if (is.eof())
+      {
+        is.clear();
+        is.setstate(std::ios_base::eofbit);
+      }
+      else
+      {
+        is.clear();
+      }
+      throw std::runtime_error("<INVALID COMMAND>");
+    }
+    std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(now_max), NowMax {0, p});
     os << * std::max_element(now_max.begin(), now_max.end()) << '\n';
     return;
   }
 
-  void inframe(std::istream& is, std::ostream& os, std::vector< Polygon >& all_polygons)
+  void inframe(std::istream& is, std::ostream& os, const std::vector< Polygon >& all_polygons)
   {
-    std::vector< int > min_x_v (all_polygons.size());
-    std::vector< int > max_x_v (all_polygons.size());
-    std::transform(all_polygons.begin(), all_polygons.end(), min_x_v.begin(), GetMinX {});
-    std::transform(all_polygons.begin(), all_polygons.end(), max_x_v.begin(), GetMaxX {});
-    std::vector< int > min_y_v (all_polygons.size());
-    std::vector< int > max_y_v (all_polygons.size());
-    std::transform(all_polygons.begin(), all_polygons.end(), min_y_v.begin(), GetMinY {});
-    std::transform(all_polygons.begin(), all_polygons.end(), max_y_v.begin(), GetMaxY {});
     Polygon p;
     is >> p;
+    if (!is)
+    {
+      if (is.eof())
+      {
+        is.clear();
+        is.setstate(std::ios_base::eofbit);
+      }
+      else
+      {
+        is.clear();
+      }
+      throw std::runtime_error("<INVALID COMMAND>");
+    }
+    std::vector< int > min_x_v;
+    std::vector< int > max_x_v;
+    std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(min_x_v), GetMinX {});
+    std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(max_x_v), GetMaxX {});
+    std::vector< int > min_y_v;
+    std::vector< int > max_y_v;
+    std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(min_y_v), GetMinY {});
+    std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(max_y_v), GetMaxY {});
     int minY = GetMinY {} (p);
     int maxY = GetMaxY {} (p);
     int minX = GetMinX {} (p);
@@ -204,8 +283,8 @@ namespace goltsov
 
   double AreaPolygon::operator()(const Polygon& p)
   {
-    std::vector< double > temp_areas(p.points.size());
-    std::transform(p.points.begin(), p.points.end(), temp_areas.begin(), AreasTriangleOfPolygon {p.points});
+    std::vector< double > temp_areas;
+    std::transform(p.points.begin(), p.points.end(), std::back_inserter(temp_areas), AreasTriangleOfPolygon {p.points});
     double sum = std::accumulate(temp_areas.begin(), temp_areas.end(), 0.0);
     return std::abs(sum) / 2.0;
   }
@@ -235,29 +314,29 @@ namespace goltsov
 
   int GetMinX::operator()(const Polygon& p)
   {
-    std::vector< int > all_x (p.points.size());
-    std::transform(p.points.begin(), p.points.end(), all_x, GetX {});
+    std::vector< int > all_x;
+    std::transform(p.points.begin(), p.points.end(), std::back_inserter(all_x), GetX {});
     return * std::min_element(all_x.begin(), all_x.end());
   }
 
   int GetMaxX::operator()(const Polygon& p)
   {
-    std::vector< int > all_x (p.points.size());
-    std::transform(p.points.begin(), p.points.end(), all_x, GetX {});
+    std::vector< int > all_x;
+    std::transform(p.points.begin(), p.points.end(), std::back_inserter(all_x), GetX {});
     return * std::max_element(all_x.begin(), all_x.end());
   }
 
   int GetMinY::operator()(const Polygon& p)
   {
-    std::vector< int > all_y (p.points.size());
-    std::transform(p.points.begin(), p.points.end(), all_y, GetY {});
+    std::vector< int > all_y;
+    std::transform(p.points.begin(), p.points.end(), std::back_inserter(all_y), GetY {});
     return * std::min_element(all_y.begin(), all_y.end());
   }
 
   int GetMaxY::operator()(const Polygon& p)
   {
-    std::vector< int > all_y (p.points.size());
-    std::transform(p.points.begin(), p.points.end(), all_y, GetY {});
+    std::vector< int > all_y;
+    std::transform(p.points.begin(), p.points.end(), std::back_inserter(all_y), GetY {});
     return * std::max_element(all_y.begin(), all_y.end());
   }
 }
