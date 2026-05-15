@@ -13,7 +13,7 @@ namespace goltsov
 
   std::vector< goltsov::Polygon >* command::all_polygons = nullptr;
 
-  std::istream& operator>>(std::istream& is, command& c)
+  std::istream& operator>>(std::istream& is, command&)
   {
     std::string name_command;
     is >> name_command;

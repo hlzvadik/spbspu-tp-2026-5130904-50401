@@ -9,7 +9,7 @@ namespace goltsov
     static std::vector< goltsov::Polygon >* all_polygons;
     command() = default;
   };
-  std::istream& operator>>(std::istream& is, command& c);
+  std::istream& operator>>(std::istream& is, command&);
   void readData(std::istream& is, std::vector< goltsov::Polygon >& all_polygons);
 }
 #endif
