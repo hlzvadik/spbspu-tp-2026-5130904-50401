@@ -12,5 +12,4 @@ namespace goltsov
   std::istream& operator>>(std::istream& is, command& c);
   void readData(std::istream& is, std::vector< goltsov::Polygon >& all_polygons);
 }
-
 #endif
