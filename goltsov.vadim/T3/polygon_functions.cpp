@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <numeric>
 #include <ios>
+#include <iomanip>
 #include "polygon_functions.hpp"
 
 namespace goltsov
@@ -29,10 +30,11 @@ namespace goltsov
     {
       unsigned long long count_vertexes = std::stoull(parameter);
       std::vector< Polygon > vert_p;
-      std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (vert_p), CountVertexesPredicate {count_vertexes});
+      std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (vert_p),
+        CountVertexesPredicate {count_vertexes});
       std::vector< double > areas;
       std::transform(vert_p.begin(), vert_p.end(), std::back_inserter(areas), AreaPolygon {});
-      os << std::accumulate(areas.begin(), areas.end(), 0) << '\n';
+      os << std::fixed << std::setprecision(1) << std::accumulate(areas.begin(), areas.end(), 0.0) << '\n';
       return;
     }
     else if (parameter == "EVEN")
@@ -41,7 +43,7 @@ namespace goltsov
       std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (even_v), EvenPredicate {});
       std::vector< double > areas;
       std::transform(even_v.begin(), even_v.end(), std::back_inserter(areas), AreaPolygon {});
-      os << std::accumulate(areas.begin(), areas.end(), 0) << '\n';
+      os << std::fixed << std::setprecision(1) << std::accumulate(areas.begin(), areas.end(), 0.0) << '\n';
       return;
     }
     else if (parameter == "ODD")
@@ -50,14 +52,15 @@ namespace goltsov
       std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (odd_v), OddPredicate {});
       std::vector< double > areas;
       std::transform(odd_v.begin(), odd_v.end(), std::back_inserter(areas), AreaPolygon {});
-      os << std::accumulate(areas.begin(), areas.end(), 0) << '\n';
+      os << std::fixed << std::setprecision(1) << std::accumulate(areas.begin(), areas.end(), 0.0) << '\n';
       return;
     }
     else if (parameter == "MEAN")
     {
       std::vector< double > areas;
       std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(areas), AreaPolygon {});
-      os << std::accumulate(areas.begin(), areas.end(), 0) / (static_cast< double >(all_polygons.size())) << '\n';
+      os << std::fixed << std::setprecision(1) << std::accumulate(areas.begin(), areas.end(), 0.0)
+        / (static_cast< double >(all_polygons.size())) << '\n';
       return;
     }
     else
@@ -87,13 +90,14 @@ namespace goltsov
     {
       std::vector< double > areas;
       std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(areas), AreaPolygon {});
-      os << (* std::max_element(areas.begin(), areas.end())) << '\n';
+      os << std::fixed << std::setprecision(1) << (* std::max_element(areas.begin(), areas.end())) << '\n';
       return;
     }
     else if (parameter == "VERTEXES")
     {
       std::vector< size_t > counts_vertexes;
-      std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(counts_vertexes), CountVertexes {});
+      std::transform(all_polygons.begin(), all_polygons.end(),
+        std::back_inserter(counts_vertexes), CountVertexes {});
       os << (* std::max_element(counts_vertexes.begin(), counts_vertexes.end())) << '\n';
       return;
     }
@@ -124,13 +128,14 @@ namespace goltsov
     {
       std::vector< double > areas;
       std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(areas), AreaPolygon {});
-      os << * std::min_element(areas.begin(), areas.end()) << '\n';
+      os << std::fixed << std::setprecision(1) << * std::min_element(areas.begin(), areas.end()) << '\n';
       return;
     }
     else if (parameter == "VERTEXES")
     {
       std::vector< size_t > counts_vertexes;
-      std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(counts_vertexes), CountVertexes {});
+      std::transform(all_polygons.begin(), all_polygons.end(),
+        std::back_inserter(counts_vertexes), CountVertexes {});
       os << * std::min_element(counts_vertexes.begin(), counts_vertexes.end()) << '\n';
       return;
     }
@@ -161,7 +166,8 @@ namespace goltsov
     {
       unsigned long long count_vertexes = std::stoull(parameter);
       std::vector< Polygon > vert_p;
-      std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (vert_p), CountVertexesPredicate {count_vertexes});
+      std::copy_if(all_polygons.begin(), all_polygons.end(),
+        std::back_inserter (vert_p), CountVertexesPredicate {count_vertexes});
       os << vert_p.size() << '\n';
       return;
     }
@@ -237,17 +243,17 @@ namespace goltsov
     int maxY = GetMaxY {} (p);
     int minX = GetMinX {} (p);
     int maxX = GetMaxX {} (p);
-    if ((* std::min_element(min_x_v.begin(), min_x_v.end())) > minX
-        && (* std::min_element(min_y_v.begin(), min_y_v.end())) > minY
-        && (* std::max_element(max_x_v.begin(), max_x_v.end())) < maxX
-        && (* std::min_element(max_y_v.begin(), max_y_v.end())) < maxY)
+    if ((* std::min_element(min_x_v.begin(), min_x_v.end())) <= minX
+        && (* std::min_element(min_y_v.begin(), min_y_v.end())) <= minY
+        && (* std::max_element(max_x_v.begin(), max_x_v.end())) >= maxX
+        && (* std::max_element(max_y_v.begin(), max_y_v.end())) >= maxY)
     {
-      os << "<TRUE>";
+      os << "<TRUE>\n";
       return;
     }
     else
     {
-      os << "<FALSE>";
+      os << "<FALSE>\n";
       return;
     }
   }
@@ -274,7 +280,6 @@ namespace goltsov
 
   double AreasTriangleOfPolygon::operator()(const Point& p1)
   {
-    static size_t i = 0;
     const Point& p2 = points[(i + 1) % points.size()];
     double result = p1.x * p2.y - p2.x * p1.y;
     ++i;
@@ -284,7 +289,8 @@ namespace goltsov
   double AreaPolygon::operator()(const Polygon& p)
   {
     std::vector< double > temp_areas;
-    std::transform(p.points.begin(), p.points.end(), std::back_inserter(temp_areas), AreasTriangleOfPolygon {p.points});
+    std::transform(p.points.begin(), p.points.end(),
+      std::back_inserter(temp_areas), AreasTriangleOfPolygon {p.points, 0});
     double sum = std::accumulate(temp_areas.begin(), temp_areas.end(), 0.0);
     return std::abs(sum) / 2.0;
   }

@@ -37,6 +37,7 @@ namespace goltsov
   struct AreasTriangleOfPolygon
   {
     const std::vector< Point >& points;
+    size_t i = 0;
     double operator()(const Point& p1);
   };
 
