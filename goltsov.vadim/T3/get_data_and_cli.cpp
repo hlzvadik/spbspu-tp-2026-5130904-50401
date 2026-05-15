@@ -7,8 +7,27 @@ namespace goltsov
 {
   void readData(std::istream& is, std::vector< goltsov::Polygon >& all_polygons)
   {
-    std::copy(std::istream_iterator< goltsov::Polygon > (is), std::istream_iterator< goltsov::Polygon > {},
-      std::back_inserter(all_polygons));
+    if (is.eof())
+    {
+      return;
+    }
+    goltsov::Polygon p;
+    if (is >> p)
+    {
+      all_polygons.push_back(p);
+      readData(is, all_polygons);
+      return;
+    }
+    if (is.eof())
+    {
+      return;
+    }
+    is.clear();
+    std::string garbage;
+    if (is >> garbage)
+    {
+      readData(is, all_polygons);
+    }
   }
 
   std::vector< goltsov::Polygon >* command::all_polygons = nullptr;

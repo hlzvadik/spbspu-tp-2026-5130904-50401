@@ -29,6 +29,10 @@ namespace goltsov
     if (isdigit(parameter[0]))
     {
       unsigned long long count_vertexes = std::stoull(parameter);
+      if (count_vertexes < 3)
+      {
+        throw std::runtime_error("<INVALID COMMAND>");
+      }
       std::vector< Polygon > vert_p;
       std::copy_if(all_polygons.begin(), all_polygons.end(), std::back_inserter (vert_p),
         CountVertexesPredicate {count_vertexes});
@@ -57,6 +61,10 @@ namespace goltsov
     }
     else if (parameter == "MEAN")
     {
+      if (all_polygons.size() == 0)
+      {
+        throw std::runtime_error("<INVALID COMMAND>");
+      }
       std::vector< double > areas;
       std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(areas), AreaPolygon {});
       os << std::fixed << std::setprecision(1) << std::accumulate(areas.begin(), areas.end(), 0.0)
@@ -71,6 +79,10 @@ namespace goltsov
 
   void max(std::istream& is, std::ostream& os, const std::vector< Polygon >& all_polygons)
   {
+    if (all_polygons.size() == 0)
+    {
+      throw std::runtime_error("<INVALID COMMAND>");
+    }
     std::string parameter;
     is >> parameter;
     if (!is)
@@ -109,6 +121,10 @@ namespace goltsov
 
   void min(std::istream& is, std::ostream& os, const std::vector< Polygon >& all_polygons)
   {
+    if (all_polygons.size() == 0)
+    {
+      throw std::runtime_error("<INVALID COMMAND>");
+    }
     std::string parameter;
     is >> parameter;
     if (!is)
@@ -165,6 +181,10 @@ namespace goltsov
     if (isdigit(parameter[0]))
     {
       unsigned long long count_vertexes = std::stoull(parameter);
+      if (count_vertexes < 3)
+      {
+        throw std::runtime_error("<INVALID COMMAND>");
+      }
       std::vector< Polygon > vert_p;
       std::copy_if(all_polygons.begin(), all_polygons.end(),
         std::back_inserter (vert_p), CountVertexesPredicate {count_vertexes});
@@ -209,6 +229,10 @@ namespace goltsov
       }
       throw std::runtime_error("<INVALID COMMAND>");
     }
+    if (is.peek() != '\n')
+    {
+      throw std::runtime_error("<INVALID COMMAND>");
+    }
     std::transform(all_polygons.begin(), all_polygons.end(), std::back_inserter(now_max), NowMax {0, p});
     os << * std::max_element(now_max.begin(), now_max.end()) << '\n';
     return;
@@ -229,6 +253,10 @@ namespace goltsov
       {
         is.clear();
       }
+      throw std::runtime_error("<INVALID COMMAND>");
+    }
+    if (is.peek() != '\n')
+    {
       throw std::runtime_error("<INVALID COMMAND>");
     }
     std::vector< int > min_x_v;
